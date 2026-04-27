@@ -35,8 +35,42 @@ int main() {
     for (int i = 0; i < 256; i++) {
         if (seen[i] == 1) {
             printf("char: '%c' = %d\n", i, i);
-        }
+       }
     }
+
+    int char_to_id[256] = {0};
+    char id_to_char[65] = {0};
+    int vocab_size = 0;
+
+    for (int i = 0 ; i < 256; i++){
+    	if (seen[i] == 1){
+    		id_to_char[vocab_size] = i;
+    		char_to_id[i] = vocab_size;
+    		vocab_size++;
+    	}
+    	
+    }
+
+   printf("Vocab size: %d\n", vocab_size);    
+
+    for (int i = 0; i < vocab_size; i++) {
+        printf("id %d -> '%c'\n", i, id_to_char[i]);
+    }
+
+    int*encoded = malloc(sizeof(int) * size);
+
+    for (int i = 0 ; i < size; i++)
+    {
+    	encoded[i] = char_to_id[(unsigned char)text[i]];
+    }
+
+    printf("First 20 encoded values:\n");
+    for (int i = 0; i < 20; i++) {
+        printf("%d ", encoded[i]);
+    }
+    printf("\n");
+ 
+    
     // 8. Null terminate it
     text[size] = '\0';
 
