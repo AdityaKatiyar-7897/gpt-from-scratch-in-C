@@ -25,6 +25,18 @@ int main() {
     // 7. Read the file into memory
     fread(text, 1, size, file);
 
+    // First: walk the text and mark seen characters
+    int seen[256] = {0};
+    for (int i = 0; i < size; i++) {
+        seen[(unsigned char)text[i]] = 1;
+    }
+    
+    // Second: print which characters were seen
+    for (int i = 0; i < 256; i++) {
+        if (seen[i] == 1) {
+            printf("char: '%c' = %d\n", i, i);
+        }
+    }
     // 8. Null terminate it
     text[size] = '\0';
 
