@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
+
 
 int main() {
     long size;
@@ -65,11 +67,39 @@ int main() {
     }
 
     printf("First 20 encoded values:\n");
+
+    
     for (int i = 0; i < 20; i++) {
         printf("%d ", encoded[i]);
     }
     printf("\n");
- 
+    
+    int block_size = 64;
+    int batch_size = 32 ; 
+
+    int* X = malloc(sizeof(int) * (batch_size * block_size));
+    int* Y = malloc(sizeof(int) * (batch_size * block_size));
+
+    srand(time(NULL));
+
+    for (int b = 0 ; b< batch_size ; b++)
+    {
+        int start = rand() % (size - block_size - 1);
+    	for (int t = 0 ; t < block_size ; t++){
+
+    		X[b * block_size + t] = encoded[start + t];
+    		Y[b * block_size + t] = encoded[start + t + 1];
+    	}
+    }
+
+    printf("First batch, first sequence:\n");
+    printf("X: ");
+    for (int t = 0; t < block_size; t++) printf("%d ", X[t]);
+    printf("\nY: ");
+    for (int t = 0; t < block_size; t++) printf("%d ", Y[t]);
+    printf("\n");
+
+    
     
     // 8. Null terminate it
     text[size] = '\0';
