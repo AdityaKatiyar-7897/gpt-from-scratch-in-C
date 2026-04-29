@@ -34,7 +34,7 @@ int main(){
     }
     printf("\n");
 
-    // => building embedding table
+    // => building embedding lookup tableis
 
     float* embedded = malloc(sizeof(float) * 32 * 64 * 64);
 
@@ -60,8 +60,82 @@ int main(){
     }
     printf("\n");
 
+    // => Transformer
+
+    float* Wq = malloc(sizeof(float) * 64 * 64);
+    float* Wk = malloc(sizeof(float) * 64 * 64);
+    float* Wv = malloc(sizeof(float) * 64 * 64);
+
+    for (int i = 0 ; i < (64 * 64) ; i ++)
+    {
+    	  Wq[i] =  ((float)rand() / RAND_MAX) * 0.2f - 0.1f;
+    }
+
+    for (int j = 0 ;j < (64 * 64) ; j ++)
+        {
+        	  Wk[j] = ((float)rand() / RAND_MAX) * 0.2f - 0.1f;
+        }
+
+
+    for (int k = 0 ; k < (64 * 64) ; k ++)
+        {
+        	  Wv[k] = ((float)rand() / RAND_MAX) * 0.2f - 0.1f;
+        }
+
+
+    float* Q = malloc(sizeof(float) * 64 * 64);
+    float* K = malloc(sizeof(float) * 64 * 64);
+    float* V = malloc(sizeof(float) * 64  * 64);
+
+
+    for (int i = 0; i < 64 * 64; i++) Q[i] = 0.0f;
+
+    for (int t = 0; t < 64 ; t++){
+    	for (int d = 0 ; d < 64; d++){
+    		for (int i = 0 ; i < 64 ; i++)
+    		{
+    			Q[t * 64 + d] += embedded[t * 64 + i] * Wq[i * 64 + d];
+    		}
+    	}
+    }    
+
+
+
+    for (int i = 0; i < 64 * 64; i++) K[i] = 0.0f;
+    for (int t = 0; t < 64; t++){
+        for (int d = 0; d < 64; d++){
+            for (int i = 0; i < 64; i++){
+                K[t * 64 + d] += embedded[t * 64 + i] * Wk[i * 64 + d];
+            }
+        }
+    }
     
+    for (int i = 0; i < 64 * 64; i++) V[i] = 0.0f;
+    for (int t = 0; t < 64; t++){
+        for (int d = 0; d < 64; d++){
+            for (int i = 0; i < 64; i++){
+                V[t * 64 + d] += embedded[t * 64 + i] * Wv[i * 64 + d];
+            }
+        }
+    }
+
+    printf("\nAttention scores for position 13 ('B'):\n");
+    for (int s = 0; s <= 13; s++) {
+        float score = 0.0f;
+        for (int d = 0; d < 64; d++) {
+            score += Q[13 * 64 + d] * K[s * 64 + d];
+        }
+        score /= 8.0f; // scale by sqrt(64)
+        printf("position %d: %.4f\n", s, score);
+    }
+
+    printf("Character ID at position 13: %d\n", X[13]);
+
+
+    // => Softmax
 
     
+
+     
     return 0;
 }
