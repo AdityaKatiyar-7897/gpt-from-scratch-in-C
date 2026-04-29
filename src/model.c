@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
 
 int main(){
     // => token embedding
@@ -119,7 +120,7 @@ int main(){
         }
     }
 
-    printf("\nAttention scores for position 13 ('B'):\n");
+    printf("\nAttention scores for position 13 ('B'):\n"); // sample testing
     for (int s = 0; s <= 13; s++) {
         float score = 0.0f;
         for (int d = 0; d < 64; d++) {
@@ -134,8 +135,36 @@ int main(){
 
     // => Softmax
 
-    
+   
+   float scores[64] = {0.0f};
+   
+ 
+   for (int s = 0; s <= 13; s++) {
+       float score = 0.0f;
+       for (int d = 0; d < 64; d++) {
+           score += Q[13 * 64 + d] * K[s * 64 + d];
+       }
+       scores[s] = score / 8.0f;
+   }
+   
+   
+   float max_score = scores[0];
+   for (int s = 1; s <= 13; s++)
+       if (scores[s] > max_score) max_score = scores[s];
+   
+   float sum = 0.0f;
+   for (int s = 0; s <= 13; s++) {
+       scores[s] = expf(scores[s] - max_score);
+       sum += scores[s];
+   }
+   for (int s = 0; s <= 13; s++)
+       scores[s] /= sum;
+   
+  
+   printf("\nSoftmax attention weights for position 13:\n");
+   for (int s = 0; s <= 13; s++)
+       printf("position %d: %.4f\n", s, scores[s]);
 
-     
+    
     return 0;
 }
