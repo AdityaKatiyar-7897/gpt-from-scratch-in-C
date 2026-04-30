@@ -3,6 +3,12 @@
 #include <time.h>
 #include <math.h>
 
+// => GELU function
+
+float gelu(float x){
+	return 0.5f * x * (1.0f + tanhf(0.7978845608f * (x + 0.044715f * x * x * x)));
+}
+
 int main(){
     // => token embedding
     float* token_emb = malloc(sizeof(float) * 65 * 64);
@@ -165,6 +171,61 @@ int main(){
    for (int s = 0; s <= 13; s++)
        printf("position %d: %.4f\n", s, scores[s]);
 
+
+   // => weighted sum of V vectors
+   float attn_out[64] = {0.0f};
+   for (int s = 0; s <= 13; s++) {
+       for (int d = 0; d < 64; d++) {
+           attn_out[d] += scores[s] * V[s * 64 + d];
+       }
+   }
+   
+   printf("\nAttention output for position 13 (first 8 values):\n");
+   for (int d = 0; d < 8; d++) {
+       printf("%.4f ", attn_out[d]);
+   }
+   printf("\n");
+
+
+   // => Feedforward layer 
+
+   // => feedforward layer
+   float* W1 = malloc(sizeof(float) * 64 * 256);
+   float* W2 = malloc(sizeof(float) * 256 * 64);
+
+   
+   for (int i = 0; i < 64 * 256; i++){
+       W1[i] = ((float)rand() / RAND_MAX) * 0.2f - 0.1f;
+   }
     
+   for (int i = 0; i < 256 * 64; i++){
+   	
+       W2[i] = ((float)rand() / RAND_MAX) * 0.2f - 0.1f;
+   }
+
+
+   float hidden[256] = {0.0f};
+   
+   for (int d = 0; d < 256 ; d++){
+   	for (int i = 0; i < 64 ; i++){
+   		hidden[d] += attn_out[i] * W1[i * 256 + d];
+   	}
+   }
+
+   for(int d = 0 ; d < 256 ; d++){
+       hidden[d] = gelu(hidden[d]);
+   }
+
+   float ff_out[64] = {0.0f};
+   for (int d = 0 ; d < 64 ; d++){
+   	    for (int i = 0 ; i < 256 ; i++){
+   	    	ff_out[d] += hidden[i] * W2[i * 64 + d];
+   	    }
+   }
+
+   printf("\nFeedforward output (first 8 values):\n");
+   for (int d = 0; d < 8; d++) printf("%.4f ", ff_out[d]);
+   printf("\n");
+   
     return 0;
 }
