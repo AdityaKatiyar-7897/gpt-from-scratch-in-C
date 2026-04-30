@@ -226,6 +226,33 @@ int main(){
    printf("\nFeedforward output (first 8 values):\n");
    for (int d = 0; d < 8; d++) printf("%.4f ", ff_out[d]);
    printf("\n");
+
+
+   // => Output layer
+
+   float* W_out = malloc(sizeof(float) * 64 * 65);
+   for (int i = 0; i < 64 * 65 ; i++){
+   
+   	   W_out[i] = ((float)rand() / RAND_MAX) * 0.2f - 0.1f;
+   }
+
+   float logits[65] = {0.0f};
+   for (int d = 0; d < 65; d++) {
+       for (int i = 0; i < 64; i++) {
+           logits[d] += ff_out[i] * W_out[i * 65 + d];
+       }
+   }
+
+   float max_logit = logits[0];
+   for (int i = 1; i < 65; i++) if (logits[i] > max_logit) max_logit = logits[i];
+   float sum_logit = 0.0f;
+   for (int i = 0; i < 65; i++) { logits[i] = expf(logits[i] - max_logit); sum_logit += logits[i]; }
+   for (int i = 0; i < 65; i++) logits[i] /= sum_logit;
+
+   int predicted = 0;
+   for (int i = 1; i < 65; i++)
+       if (logits[i] > logits[predicted]) predicted = i;
+   printf("\nPredicted next character ID: %d\n", predicted);
    
     return 0;
 }
