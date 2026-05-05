@@ -31,6 +31,29 @@ void build_vocab(char* text, long size, int* char_to_id, char* id_to_char, int* 
 	}
 }
 
+int* encode(char* text , long size , int* char_to_id){
+    int* encoded = malloc(sizeof(int) * size);
+
+    for (int i = 0; i < size; i++) {
+        encoded[i] = char_to_id[(unsigned char)text[i]];
+        
+    }
+	return encoded;
+	
+}
+
+void sample_batch(int* encoded, long size, int* X, int* Y, int batch_size, int block_size) {
+    for (int i = 0; i < batch_size; i++) {
+        int start = rand() % (size - block_size - 1);
+        for (int j = 0; j < block_size; j++) {
+            X[i * block_size + j] = encoded[start + j];
+            Y[i * block_size + j] = encoded[start + j + 1];
+        }
+    }
+}
+	
+
+
 int main() {
     long size;
     char* text = load_file("data/shakespeare.txt", &size);
@@ -42,6 +65,21 @@ int main() {
     int vocab_size = 0;
     build_vocab(text, size, char_to_id, id_to_char, &vocab_size);
     printf("Vocab size: %d\n", vocab_size);
+
+    int* encoded = encode(text, size, char_to_id);
+    printf("First 20 encoded values:\n");
+    for (int i = 0; i < 20; i++) {
+        printf("%d ", encoded[i]);
+    }
+    printf("\n");
+
+    int X[32 * 64];
+    int Y[32 * 64];
+    sample_batch(encoded, size, X, Y, 32, 64);
+    
+    printf("First sequence X: ");
+    for (int t = 0; t < 64; t++) printf("%d ", X[t]);
+    printf("\n");
     
     free(text);
     return 0;
